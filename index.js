@@ -86,7 +86,6 @@ const introspectKeycloakToken = async function (token) {
   var parameters = {
     "token": token,
     "client_id": keycloakClientID,
-    // "secret": keycloakClientSecret,
     "client_secret": keycloakClientSecret,
   };
 
@@ -124,7 +123,7 @@ const getRolesFromKeycloakToken = async function (token) {
 
 const isAdminUser = async function (token) {
 
-  let roles = await getRolesFromKeycloakToken();
+  let roles = await getRolesFromKeycloakToken(token);
   return roles.includes(kommonitorAdminRole);
 };
 
@@ -144,7 +143,7 @@ const checkKeycloakProtection = async function (req, res, next, method) {
       res.status(401).send('Access to protected endpoint with POST method is only allowed for KomMonitor Admin users using Bearer token.');
     }
     else {
-      let token = authHeaderValue.split("Bearer ")[0];
+      let token = authHeaderValue.split(" ")[1];
       console.log(token);
       let isAdmin = await isAdminUser(token);
       if (isAdmin) {
