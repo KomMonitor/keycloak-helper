@@ -114,13 +114,18 @@ const introspectKeycloakToken = async function (token) {
 const getRolesFromKeycloakToken = async function (token) {
 
   let tokenInformation = await introspectKeycloakToken(token);
-  return tokenInformation.realm_access.roles;
+  if (tokenInformation && tokenInformation.realm_access && tokenInformation.realm_access.roles){
+    return tokenInformation.realm_access.roles;
+  } 
+  else{
+    return [];
+  }
 };
 
 const isAdminUser = async function (token) {
 
-  let tokenInformation = await introspectKeycloakToken(token);
-  return tokenInformation.realm_access.roles.includes(kommonitorAdminRole);
+  let roles = await getRolesFromKeycloakToken();
+  return roles.includes(kommonitorAdminRole);
 };
 
 const checkKeycloakProtection = async function (req, res, next, method) {
