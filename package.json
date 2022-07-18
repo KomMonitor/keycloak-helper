@@ -1,0 +1,36 @@
+{
+  "name": "kommonitor-keycloak-helper",
+  "version": "1.0.0",
+  "description": "A small helper service to authenticate NodeJS apps to Keycloak.",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kommonitor/keycloak-helper.git"
+  },
+  "scripts": {
+    "prestart": "npm install",
+    "start": "node index.js",
+    "release": "release-it"
+  },
+  "keywords": [
+    "KomMonitor"
+  ],
+  "license": "Apache-2.0",
+  "private": true,
+  "dependencies": {
+    "axios": "^0.27.2",
+    "querystring": "^0.2.1"
+  },
+  "devDependencies": {
+    "@release-it/keep-a-changelog": "^2.2.2",
+    "jshint": "^2.13.5",
+    "license-checker": "^25.0.1",
+    "npm-license-crawler": "^0.2.1",
+    "release-it": "^14.6.2"
+  },
+  "jshintConfig": {
+    "undef": true,
+    "unused": true,
+    "esversion": 8
+  }
+}
