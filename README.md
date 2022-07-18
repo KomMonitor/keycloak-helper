@@ -6,7 +6,7 @@ Use it in two steps.
 
 1. install in node app directly from github ``` npm install --save https://github.com/KomMonitor/keycloak-helper ```
 2. require helper service 
-    ``` let keycloakHelperService = require('keycloak-helper'); ``` 
+    ``` let keycloakHelperService = require('kommonitor-keycloak-helper'); ``` 
 3. initialize helper service parameters required to perform keycloak authentication services 
     ``` keycloakHelperService.initKeycloakHelper(authServerUrl, realm, clientId, clientSecret, kommonitorAdminUsername, kommonitorAdminUserPassword, kommonitorAdminRolename)```
 2. perform authentication action, by either calling
