@@ -2,7 +2,7 @@ const qs = require('querystring');
 const axios = require("axios");
 const fs = require("fs");
 
-const kommonitorAdminRole = undefined;
+var kommonitorAdminRole = undefined;
 
 var keycloakTargetURL = undefined;
 var keycloakUser = undefined;
