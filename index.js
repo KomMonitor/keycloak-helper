@@ -31,6 +31,10 @@ const requestKeycloakToken = async function () {
     // "client_secret": keycloakClientSecret
   };
 
+  if(keycloakClientSecret){
+    parameters["client_secret"] = keycloakClientSecret;
+  }
+
   var keycloakBearerTokenURL = keycloakTargetURL + "realms/" + keycloakRealm + "/protocol/openid-connect/token";
 
   const config = {
