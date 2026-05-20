@@ -141,11 +141,11 @@ const checkKeycloakProtection = async function (req, res, next, method) {
 
     if (!authHeaderValue) {
       logger.warn('No Authorization header present.');
-      res.status(401).send('Access to protected endpoint with POST method is only allowed for KomMonitor Admin users.');
+      res.status(401).send('Access to protected endpoint with ' + req.method + ' method is only allowed for KomMonitor Admin users.');
     }
     else if (authHeaderValue && !authHeaderValue.includes("Bearer")) {
       logger.warn('Authorization header not using Bearer token mechanism.');
-      res.status(401).send('Access to protected endpoint with POST method is only allowed for KomMonitor Admin users using Bearer token.');
+      res.status(401).send('Access to protected endpoint with ' + req.method + ' method is only allowed for KomMonitor Admin users using Bearer token.');
     }
     else {
       let token = authHeaderValue.split(" ")[1];
@@ -157,7 +157,7 @@ const checkKeycloakProtection = async function (req, res, next, method) {
       }
       else {
         logger.warn("Non-Admin authenticated. Hence block request.");
-        res.status(403).send('Access to protected endpoint with POST method is only allowed for KomMonitor Admin users.');
+        res.status(403).send('Access to protected endpoint with ' + req.method + ' method is only allowed for KomMonitor Admin users.');
       }
     }
   }
