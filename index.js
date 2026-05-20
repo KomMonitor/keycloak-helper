@@ -132,8 +132,9 @@ const isAdminUser = async function (token) {
 };
 
 const checkKeycloakProtection = async function (req, res, next, method) {
+  const methods = Array.isArray(method) ? method : [method];
 
-  if (req.method == method) {
+  if (methods.includes(req.method)) {
     logger.info("Itercepting " + req.method + " request. Check for Keycloak-based Admin permission.");
 
     let authHeaderValue = req.header("Authorization");
