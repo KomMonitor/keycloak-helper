@@ -1,4 +1,3 @@
-const qs = require('querystring');
 const axios = require("axios");
 const fs = require("fs");
 
@@ -43,7 +42,7 @@ const requestKeycloakToken = async function () {
     }
   }
 
-  return await axios.post(keycloakBearerTokenURL, qs.stringify(parameters), config)
+  return await axios.post(keycloakBearerTokenURL, new URLSearchParams(parameters).toString(), config)
     .then((response) => {
       /*
         {
@@ -101,7 +100,7 @@ const introspectKeycloakToken = async function (token) {
     }
   }
 
-  return await axios.post(keycloakIntrospectTokenURL, qs.stringify(parameters), config)
+  return await axios.post(keycloakIntrospectTokenURL, new URLSearchParams(parameters).toString(), config)
     .then((response) => {
       return response.data;
     })
