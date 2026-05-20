@@ -1,5 +1,6 @@
 const axios = require("axios");
 const fs = require("fs");
+const logger = require('./utils/logger');
 
 var kommonitorAdminRole = undefined;
 
@@ -62,7 +63,7 @@ const requestKeycloakToken = async function () {
       // called asynchronously if an error occurs
       // or server returns response with an error status.
       //$scope.error = response.statusText;
-      console.error("Error while requesting auth bearer token from keycloak. Error is: \n" + error);
+      logger.error("Error while requesting auth bearer token from keycloak. Error is: \n" + error);
       throw error;
     })
 };
@@ -108,7 +109,7 @@ const introspectKeycloakToken = async function (token) {
       // called asynchronously if an error occurs
       // or server returns response with an error status.
       //$scope.error = response.statusText;
-      console.error("Error while requesting token introspection from keycloak. Error is: \n" + error);
+      logger.error("Error while requesting token introspection from keycloak. Error is: \n" + error);
       throw error;
     })
 };
@@ -133,28 +134,28 @@ const isAdminUser = async function (token) {
 const checkKeycloakProtection = async function (req, res, next, method) {
 
   if (req.method == method) {
-    console.log("Itercepting " + req.method + " request. Check for Keycloak-based Admin permission.");
+    logger.info("Itercepting " + req.method + " request. Check for Keycloak-based Admin permission.");
 
     let authHeaderValue = req.header("Authorization");
 
     if (!authHeaderValue) {
-      console.log('No Authorization header present.');
+      logger.warn('No Authorization header present.');
       res.status(401).send('Access to protected endpoint with POST method is only allowed for KomMonitor Admin users.');
     }
     else if (authHeaderValue && !authHeaderValue.includes("Bearer")) {
-      console.log('Authorization header not using Bearer token mechanism.');
+      logger.warn('Authorization header not using Bearer token mechanism.');
       res.status(401).send('Access to protected endpoint with POST method is only allowed for KomMonitor Admin users using Bearer token.');
     }
     else {
       let token = authHeaderValue.split(" ")[1];
-      console.log(token);
+      logger.debug(token);
       let isAdmin = await isAdminUser(token);
       if (isAdmin) {
-        console.log("Admin authenticated. Continue request");
+        logger.info("Admin authenticated. Continue request");
         next();
       }
       else {
-        console.log("Non-Admin authenticated. Hence block request.");
+        logger.warn("Non-Admin authenticated. Hence block request.");
         res.status(403).send('Access to protected endpoint with POST method is only allowed for KomMonitor Admin users.');
       }
     }
