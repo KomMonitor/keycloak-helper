@@ -166,6 +166,47 @@ const checkKeycloakProtection = async function (req, res, next, method) {
   }
 };
 
+const checkForUserRolePostfix = async function (token, postfix) {
+  let roles = await getRolesFromKeycloakToken(token);
+  return roles.some(role => role.endsWith(postfix));
+};
+
+const checkKeycloakProtectionClientConfig = async function (req, res, next, method) {
+
+  if (req.method == method) {
+    logger.info("Itercepting " + req.method + " request. Check for Keycloak-based Resource Creator permission.");
+
+    let authHeaderValue = req.header("Authorization");
+
+    if (!authHeaderValue) {
+      logger.warn('No Authorization header present.');
+      res.status(401).send('Access to protected endpoint with ' + req.method + ' method is only allowed for KomMonitor Resource Creator users.');
+    }
+    else if (authHeaderValue && !authHeaderValue.includes("Bearer")) {
+      logger.warn('Authorization header not using Bearer token mechanism.');
+      res.status(401).send('Access to protected endpoint with ' + req.method + ' method is only allowed for KomMonitor Resource Creator users using Bearer token.');
+    }
+    else {
+      let token = authHeaderValue.split(" ")[1];
+      logger.debug(token);
+      let isUnitResourceCreator = await checkForUserRolePostfix(token, ".unit-resources-creator");
+      let isClientResourceCreator = await checkForUserRolePostfix(token, ".client-resources-creator");
+      let isAdmin = await isAdminUser(token);
+      if (isUnitResourceCreator || isClientResourceCreator || isAdmin) {
+        logger.info("Resource Creator authenticated. Continue request");
+        next();
+      }
+      else {
+        logger.warn("Non- Resource Creator authenticated. Hence block request.");
+        res.status(403).send('Access to protected endpoint with POST method is only allowed for KomMonitor Resource Creator users.');
+      }
+    }
+  }
+  else {
+    next();
+  }
+};
+
 exports.initKeycloakHelper = initKeycloakHelper;
 exports.requestKeycloakToken = requestKeycloakToken;
 exports.requestAccessToken = requestAccessToken;
@@ -173,3 +214,4 @@ exports.introspectToken = introspectKeycloakToken;
 exports.getRolesFromKeycloakToken = getRolesFromKeycloakToken;
 exports.isAdminUser = isAdminUser;
 exports.checkKeycloakProtection = checkKeycloakProtection;
+exports.checkKeycloakProtectionClientConfig = checkKeycloakProtectionClientConfig;
