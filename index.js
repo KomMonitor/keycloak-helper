@@ -3,6 +3,7 @@ const fs = require("fs");
 const logger = require('./utils/logger');
 
 var kommonitorAdminRole = undefined;
+var kommonitorConfigRolesPostfixes = undefined;
 
 var keycloakTargetURL = undefined;
 var keycloakUser = undefined;
@@ -11,7 +12,7 @@ var keycloakClientID = undefined;
 var keycloakClientSecret = undefined;
 var keycloakRealm = undefined;
 
-const initKeycloakHelper = function (authServerUrl, realm, clientId, clientSecret, kommonitorAdminUsername, kommonitorAdminUserPassword, kommonitorAdminRolename) {
+const initKeycloakHelper = function (authServerUrl, realm, clientId, clientSecret, kommonitorAdminUsername, kommonitorAdminUserPassword, kommonitorAdminRolename, kommonitorConfigAllowedRolesPostfixes) {
   keycloakTargetURL = authServerUrl;
   keycloakRealm = realm;
   keycloakClientID = clientId;
@@ -19,6 +20,7 @@ const initKeycloakHelper = function (authServerUrl, realm, clientId, clientSecre
   keycloakUser = kommonitorAdminUsername;
   keycloakUserPassword = kommonitorAdminUserPassword;
   kommonitorAdminRole = kommonitorAdminRolename;
+  kommonitorConfigRolesPostfixes = kommonitorConfigAllowedRolesPostfixes;
 };
 
 const requestKeycloakToken = async function () {
@@ -171,6 +173,15 @@ const checkForUserRolePostfix = async function (token, postfix) {
   return roles.some(role => role.endsWith(postfix));
 };
 
+async function checkForAllowedUserRole(token, postfixes) {
+  for (const postfix of postfixes) {
+    if (await checkForUserRolePostfix(token, postfix)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 const checkKeycloakProtectionClientConfig = async function (req, res, next, method) {
 
   if (req.method == method) {
@@ -189,10 +200,9 @@ const checkKeycloakProtectionClientConfig = async function (req, res, next, meth
     else {
       let token = authHeaderValue.split(" ")[1];
       logger.debug(token);
-      let isUnitResourceCreator = await checkForUserRolePostfix(token, ".unit-resources-creator");
-      let isClientResourceCreator = await checkForUserRolePostfix(token, ".client-resources-creator");
+      let hasAllowedUserRole = await checkForAllowedUserRole(token, kommonitorConfigRolesPostfixes);
       let isAdmin = await isAdminUser(token);
-      if (isUnitResourceCreator || isClientResourceCreator || isAdmin) {
+      if (hasAllowedUserRole || isAdmin) {
         logger.info("Resource Creator authenticated. Continue request");
         next();
       }
